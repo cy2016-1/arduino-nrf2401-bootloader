@@ -31,7 +31,20 @@ bootloader默认优先使用无线模块接收数据,当检测不到无线模块
 ## 如何测试bootloader:
 1. 拔掉nrf24l01+模块，然后将烧写好的目标板串口线连接PC并找出对应的串口设备      
 2. 输入测试命令 avrdude -cstk500v2 -pm328p -P COMx/ttyUSBx/ttyACMx -U flash:r:test_read.hex:i        
-3. 
+3. 如果你能看到命令正常执行完毕，那么恭喜你，bootloader已经成功运行了。      
+## arduino IDE中如何使用bootloader下载程序：
+![](doc/communication_with_IDE.png)       
+1. 检查两块板各自的连线，确保正常（如果你没改过代码的话，两块板和NRF24L01模块之间的连线是完全一样的）。       
+2. 使用arduino IDE打开arduino-nrf2401-programmer目录下的arduino-nrf2401-programmer.ino     
+3. 编译这个工程并下载到充当无线编程器的arduino板上       
+4. IDE中打开你要给目标板烧写的程序，编译之      
+5. 烧写目标板前对IDE进行必要的配置（这里以官方自带例程Blink为例子）：       
+  ![](doc/IDE_config_before_download.png)      
+6. 烧写： "项目" ==> "使用编程器上传"        
+注意：这一步和我们正常下载程序不大一样：      
+无线编程器无法接触到目标板，所以没办法像串口下载那样直接使目标板上的m328p复位，只能是手动及时复位目标板。      
+具体方法是: 启动烧写之后，注意观察IDE左下角的状态提示，如果出现了"上传中...."之类的字样，立即手动复位目标板。     
+稍晚的话就会下载失败，因为复位之后，目标板的bootloader仅仅等待下载信号1秒钟，超时了就会跳转至APP代码区去执行固件。
 ## 丢包率测试结果：    
 1. 无2.4G wifi设备干扰    
 ![](doc/pack_loss_rate_test_no_wifi_dev_near.png)
