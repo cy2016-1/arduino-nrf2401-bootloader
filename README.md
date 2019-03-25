@@ -22,7 +22,27 @@ bootloader默认优先使用无线模块接收数据,当检测不到无线模块
 默认连线图：      
 ![默认连线图](doc/bootloader_def_pin_connect.png)    
 ## 如何编译：    
-1. 修改Makefile中定义的串口号，根据你自己的情况选择
+1. 修改Makefile中定义的串口号，根据你自己的情况修改 DEVICE_PORT       
+2. 编译： make              
+3. 使用usbasp烧写: make upload (upload命令先烧写熔丝位，再烧写代码)   
+      
+（如果你使用的交叉工具链是winAVR2010的话，还是不要自己编译了。winAVR已经快十年没更新了，内置的avr-gcc还是4.3版本，编译效率比较低，bootloader绝对会超过2Kb,建议换更高版本的，我自己使用的是5.4 ）          
 
-### 测试结果：    
+## 如何测试bootloader:
+1. 拔掉nrf24l01+模块，然后将烧写好的目标板串口线连接PC并找出对应的串口设备      
+2. 输入测试命令 avrdude -cstk500v2 -pm328p -P COMx/ttyUSBx/ttyACMx -U flash:r:test_read.hex:i        
+3. 
+## 丢包率测试结果：    
+1. 无2.4G wifi设备干扰    
+![](doc/pack_loss_rate_test_no_wifi_dev_near.png)
+2. 2.4G wifi设备轻微干扰    
+![](doc/pack_loss_rate_test_wifi_dev_middle.png)      
+3. 2.4G wifi设备编程器端重度干扰
+![](doc/pack_loss_rate_test_wifi_dev_near_prog.png)     
+4. 2.4G wifi设备bootloader端重度干扰      
+![](doc/pack_loss_rate_test_wifi_dev_near_boot.png)
+
+
+## 结尾：    
+时间所限，暂时写这些，如果大家感兴趣，请留言提醒，我可以在代码具体实现上补一些文档。
 
