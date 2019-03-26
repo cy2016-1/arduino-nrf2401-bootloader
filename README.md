@@ -25,13 +25,22 @@ bootloader默认优先使用无线模块接收数据,当检测不到无线模块
 1. 修改Makefile中定义的串口号，根据你自己的情况修改 DEVICE_PORT       
 2. 编译： make              
 3. 使用usbasp烧写: make upload (upload命令先烧写熔丝位，再烧写代码)   
+4. 由于SPI-CLK引脚正好连上了板载的LED，所以无线下载bootloader没办法像arduino官方bootloader那样闪烁LED提示正在运行，因此烧写完毕后需要测试一下能否正常工作，请按照下文描述的测试方法测试一下      
       
 （如果你使用的交叉工具链是winAVR2010的话，还是不要自己编译了。winAVR已经快十年没更新了，内置的avr-gcc还是4.3版本，编译效率比较低，bootloader绝对会超过2Kb,建议换更高版本的，我自己使用的是5.4 ）          
+        
+
+（对于没有条件自己编译的各位，我上传了编译好的HEX文件，使用上图中的默认连线方式，文件位于bin目录下，烧写前需要先想办法修改熔丝位，配置： lfuse:0xFF / hfuse:0xDA / efuse:0xFD  ）      
 
 ## 如何测试bootloader:
 1. 拔掉nrf24l01+模块，然后将烧写好的目标板串口线连接PC并找出对应的串口设备      
 2. 输入测试命令 avrdude -cstk500v2 -pm328p -P COMx/ttyUSBx/ttyACMx -U flash:r:test_read.hex:i        
 3. 如果你能看到命令正常执行完毕，那么恭喜你，bootloader已经成功运行了。      
+4. 请注意，这个地方存在一个问题：      
+   当你把烧写了本bootloader的arduino第一次连接上PC时，上述测试命令可正常执行，但如果不重新插拔USB线，而直接再次运行这个测试命令的话，arduino不会有反应，命令会超时，原因是二次执行此命令时，板载的自动复位电路不会触发，从而导致bootloader无法得到执行。      
+   这当然不会是bootloader的BUG，arduino上运行任何代码也不会禁用板载的自动复位电路，真正的原因是avrdude（我使用的是6.3，其他版本没试过）在使用命令选项-cstk500v2时存在的BUG，我给出的证明是:       
+   1. 随便找个串口助手工具，多次打开关闭和arduino相连的COM口，arduino必定会复位；       
+   2. 每次在串口工具关闭COM口之后再执行上述测试命令，arduino必定会复位，命令也会正常执行      
 ## arduino IDE中如何使用bootloader下载程序：
 ![](doc/communication_with_IDE.png)       
 1. 检查两块板各自的连线，确保正常（如果你没改过代码的话，两块板和NRF24L01模块之间的连线是完全一样的）。       
