@@ -2,6 +2,10 @@
 
 ## 介绍
 这是一个专门为arduino UNO/Nano/Pro Mini打造的无线下载bootloader,可通过NRF24L01+模块或串口烧写程序.2 Kb Flash.兼容STK500V2协议,支持avrdude,支持arduino IDE,支持跳频传输,附带编程器端实现代码.     
+
+注: 项目内附带的编程器端代码是arduino IDE简化版, 完整项目链接:  https://gitee.com/alicedodo/arduino-nrf2401-programmer 
+
+
 ## 特点:     
 #### 1.  兼容STK500V2下载协议    
 实现了协议中的通用命令以及ISP命令子集:  Flash读+写 / EEPROM读+写 / 熔丝位只读.    
