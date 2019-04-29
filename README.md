@@ -3,7 +3,25 @@
 ## 介绍
 这是一个专门为arduino UNO/Nano/Pro Mini打造的无线下载bootloader,可通过NRF24L01+模块或串口烧写程序.2 Kb Flash.兼容STK500V2协议,支持avrdude,支持arduino IDE,支持跳频传输,附带编程器端实现代码.     
 
-注: 项目内附带的编程器端代码是arduino IDE简化版, 完整项目链接:  https://gitee.com/alicedodo/arduino-nrf2401-programmer 
+注1: 项目内附带的编程器端代码是arduino IDE简化版, 完整项目链接:  https://gitee.com/alicedodo/arduino-nrf2401-programmer       
+注2：这个bootloader是否仅仅是一个玩具？。    
+     初看起来，这确实是个玩具，给arduino升级固件的时候，没办法硬件自动复位(无线传输，无解)，需要及时手动去复位，稍晚的话bootloader就会超时退出，导致升级失败。板子搁桌子上还不如串口线下载来的方便。      
+     但如果有固件本身的配合，那换一个场景也许就不一样了:      
+- arduino在我的无线操控小车/小四轴上      
+- arduino作为无线节点挂在墙/外阳台/房顶/电线杆子路灯上     
+
+当要升级固件的时候，给旧固件发个命令，固件启动看门狗，然后看门狗超时复位，然后bootloader执行，然后固件升级。  
+  
+如果固件下载到一半，无线连接挂了怎么办？这不是问题，bootloader有容错机制。    
+  
+bootloader有两种工作模式: NORMAL / CRITICAL ，通过检查复位源来确定要进入哪种模式      
+上电复位/手动RST复位:  进入NORMAL模式，1秒内没下载信号，跳转至固件；      
+看门狗复位: 立即进入CRITICAL模式；   
+NORMAL模式下1秒内收到下载信号，自动转入CRITICAL模式；       
+CRITICAL模式下看门狗保持开启状态，超时时间1秒，接收固件代码过程中，反复喂狗，保持看门狗不超时；    
+一旦下载中断，看门狗复位，bootloader在CRITICAL模式下重新运行，重置无线模块，等待下载信号；       
+
+所以遇到了下载中断的情况，重置一下无线编程器，再次下载即可。
 
 
 ## 特点:     
